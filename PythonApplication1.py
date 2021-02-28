@@ -2,10 +2,12 @@ from tkinter import *
 # подключаем tkinter
 from tkinter.messagebox import *
 # подключаем диалоговые окна tkinter
+from tkinter.ttk import *
+
 root = Tk( ) # создаем главное окно
 # Устанавливаем минимальные и максимальные размеры окна:
 root.minsize(width = 350, height = 150)
-root.maxsize(width = 550, height = 300)
+#root.maxsize(width = 550, height = 300)
 root.title("Калькулятор") # заголовок окна
 # Создадим 3 фрейма: fr_xy, fr_op и fr_res для размещения компонент.
 fr_xy = Frame(root)
@@ -26,7 +28,7 @@ entY = Entry(fr_xy, background="yellow", foreground="green")
 entY.insert(0, 0)
 entY.pack(side = LEFT, padx=10, pady=10)
 # Создание фрейма с заголовком fr_op (выбор операции):
-fr_op = LabelFrame(root, text = "Операция:", background="gray")
+fr_op = LabelFrame(root, text = "Операция:")
 fr_op.pack(side = TOP, expand=YES, fill=X)
 # Операцию будем выбирать с помощью виджета Radiobutton:
 oper = ['+', '-', '*', '/', '%', '//', "**"] # – список операций
@@ -35,7 +37,7 @@ varOper = StringVar( )
 i=0
 # В цикле создаем 7 кнопок Radiobutton (связываем их с переменной):
 for op in oper:
-	Radiobutton(fr_op, background="darkgray", foreground="blue", text = op, variable = varOper, value = op).pack(side = LEFT, padx = 20, pady = 10)
+	Radiobutton(fr_op, text = op, variable = varOper, value = op).pack(side = LEFT, padx = 20, pady = 10)
 	varOper.set(oper[0]) # Устанавливаем текущее значение ‘+’
 
 # Создаем 3-й фрейм fr_res (вычисление значения и вывод результата):
@@ -80,7 +82,7 @@ def OnButtunResult( ):# Защищенный блок, будем пытатьс
 	acts.append(res) # Обработчик кнопки закончился.
 	lb.insert(END, res)
 	# Создаем кнопку и метку, к кнопке присоединяем обработчик:
-w = Button(fr_res, text = "=", background="#555", foreground="#ccc", width = 10, command = OnButtunResult)
+w = Button(fr_res, text = "=", width = 10, command = OnButtunResult)
 # задаем вид курсора мыши над виджетом:
 w.config(cursor = "cross")
 w.pack(side = LEFT, padx = 30, pady = 20)
@@ -94,6 +96,36 @@ for i in acts:
 lb.config(yscrollcommand = scrollbar.set) 
 lb.pack(side = LEFT, padx = 30, pady = 20)
 scrollbar.config(command=lb.yview)
+resStep = Frame(root)
+resStep.config(cursor = "pirate")
+resStep.pack(side = BOTTOM, expand = YES, fill = BOTH)
+combLabel=Label(resStep, text='Возведение в степень', width = 130)
+combLabel.config(font = ('courier', 10, 'bold'))
+combLabel.pack(side = TOP, expand=YES, fill=X)
+combo = Combobox(resStep)
+combo['values']=('x^y', 'y^x')
+combo.pack(side = TOP, expand=YES, fill=X)
 
+def GetStep():
+    try:
+        x = float(entX.get())
+        # извлекаем число из 1-го редактора
+    except ValueError:# если не получилось, выдаем сообщение и выходим
+        showerror("Ошибка заполнения", "Переменная x не является числом")
+        return   # Защищенный блок 2: 
+    try:
+        y = float(entY.get())
+    except ValueError:
+        showerror("Ошибка заполнения", "Переменная y не является числом")
+        return
+    op = combo.get()
+    if op=='x^y': res = x ** y
+    elif op=='y^x': res = y ** x
+    else: res = 'операция выбрана неправильно'
+    restep['text']=res
+
+Button(resStep, text = "возвести в степень",  command = GetStep).pack(side = LEFT, padx = 30, pady = 20)
+restep = Label(resStep, text = "")
+restep.pack(side = LEFT, padx = 30, pady = 20)
 # Запуск цикла обработки сообщений:
 root.mainloop( )
